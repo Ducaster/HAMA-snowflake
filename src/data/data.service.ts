@@ -1,4 +1,3 @@
-// src/data/data.service.ts
 import { Injectable } from '@nestjs/common';
 import { SnowflakeService } from '../snowflake/snowflake.service';
 import { MemoryDBService } from '../memorydb/memorydb.service';
@@ -52,10 +51,10 @@ export class DataService {
 
     // Snowflake에서 추천 제품 조회 (SQL Injection 방지를 위해 바인딩 사용)
     const query = `
-      SELECT product_x2Duid, COUNT(*) as count
-      FROM HAMA_SNOWFLAKE.PUBLIC.ICEBERG_TABLE
-      WHERE babyInfo_x2Dcount = ?
-      GROUP BY product_x2Duid
+      SELECT PRODUCT_UID, COUNT(*) as count
+      FROM HAMA_SNOWFLAKE.PUBLIC.STRUCTURED_ICEBERG_TABLE
+      WHERE BABY_COUNT = ?
+      GROUP BY PRODUCT_UID
       ORDER BY count DESC
       LIMIT 5;
     `;
