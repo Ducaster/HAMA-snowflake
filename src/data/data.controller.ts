@@ -7,6 +7,7 @@ import {
   Body,
   Request,
   UseGuards,
+  Param,
 } from '@nestjs/common';
 import { DataService } from './data.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -14,6 +15,13 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @Controller('data')
 export class DataController {
   constructor(private readonly dataService: DataService) {}
+
+  @UseGuards(JwtAuthGuard)
+  @Get('users/:userId/top-products')
+  async getTopProducts(@Param('userId') userId: string) {
+    console.log('사용자 ID 기반 추천 제품 요청, userId:', userId);
+    return await this.dataService.getTopProductsByUserId(userId);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('users')
