@@ -51,11 +51,27 @@ export class DataService {
 
     // Snowflake에서 추천 제품 조회 (SQL Injection 방지를 위해 바인딩 사용)
     const query = `
-      SELECT PRODUCT_UID, COUNT(*) as count
+      SELECT 
+        PRODUCT_UID,
+        PRODUCT_BRAND,
+        PRODUCT_CATEGORY,
+        PRODUCT_IMG,
+        PRODUCT_LINK,
+        PRODUCT_NAME,
+        PRODUCT_SALE_PRICE,
+        PRODUCT_SITE
       FROM HAMA_SNOWFLAKE.PUBLIC.STRUCTURED_ICEBERG_TABLE
       WHERE BABY_COUNT = ?
-      GROUP BY PRODUCT_UID
-      ORDER BY count DESC
+      GROUP BY 
+        PRODUCT_UID, 
+        PRODUCT_BRAND, 
+        PRODUCT_CATEGORY, 
+        PRODUCT_IMG, 
+        PRODUCT_LINK, 
+        PRODUCT_NAME, 
+        PRODUCT_SALE_PRICE, 
+        PRODUCT_SITE
+      ORDER BY COUNT(PRODUCT_UID) DESC
       LIMIT 5;
     `;
 
