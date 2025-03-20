@@ -1,6 +1,6 @@
 // src/data/data.controller.ts
 
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, Request } from '@nestjs/common';
 import { DataService } from './data.service';
 
 @Controller('data')
@@ -8,14 +8,11 @@ export class DataController {
   constructor(private readonly dataService: DataService) {}
 
   @Get('users')
-  async getUsers() {
-    console.log('사용자 데이터 요청 수신');
-    return await this.dataService.getUserData();
+  async getUsers(@Request() req) {
+    const userId = req.user.userId; // JWT의 sub 부분을 사용하여 userId 가져오기
+    console.log('사용자 데이터 요청 수신, userId:', userId);
+    return await this.dataService.getUserData(userId); // userId를 사용하여 데이터 조회
   }
 
-  @Post('users')
-  async createUser(@Body() userData: any) {
-    console.log('사용자 데이터 생성 요청 수신:', userData);
-    return await this.dataService.insertUserData(userData);
-  }
+  // 유저 생성 메서드 삭제
 }

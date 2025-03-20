@@ -17,22 +17,16 @@ export class DataService {
   /**
    * 데이터 조회 예시
    */
-  async getUserData(): Promise<any[]> {
-    const query = `
-      SELECT * FROM DATABASE.SCHEMA.USERS 
-      WHERE active = TRUE
-      LIMIT 100
-    `;
-    console.log('사용자 데이터 조회 쿼리:', query);
-
-    try {
-      const results = await this.snowflakeService.executeQuery(query);
-      console.log('사용자 데이터 조회 결과:', results);
-      return results;
-    } catch (error) {
-      console.error('사용자 데이터 조회 실패:', error);
-      throw error;
+  async getUserData(userId: string): Promise<any[]> {
+    console.log('사용자 데이터 조회 요청, userId:', userId);
+    const userData = await this.memoryDBService.getUserData(userId); // MemoryDB에서 사용자 데이터 조회
+    if (!userData) {
+      console.error('사용자 데이터가 존재하지 않습니다.');
+      throw new Error('사용자 데이터가 존재하지 않습니다.');
     }
+
+    console.log('MemoryDB에서 가져온 사용자 데이터:', userData); // 가져온 데이터 로그 추가
+    return userData; // 사용자 데이터 반환
   }
 
   /**
