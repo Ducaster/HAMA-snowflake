@@ -53,7 +53,7 @@ export class DataService {
     // Snowflake에서 추천 제품 조회 (SQL Injection 방지를 위해 바인딩 사용)
     const query = `
       SELECT product_x2Duid, COUNT(*) as count
-      FROM your_table_name
+      FROM HAMA_SNOWFLAKE.PUBLIC.ICEBERG_TABLE
       WHERE babyInfo_x2Dcount = ?
       GROUP BY product_x2Duid
       ORDER BY count DESC
