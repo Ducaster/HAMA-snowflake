@@ -31,7 +31,13 @@ export class DataService {
     }
 
     console.log('MemoryDB에서 가져온 사용자 데이터:', userData); // 가져온 데이터 로그 추가
-    return userData; // 사용자 데이터 반환
+
+    // children의 갯수를 세어서 반환
+    const numberOfChildren = userData.children ? userData.children.length : 0;
+    return {
+      ...userData,
+      numberOfChildren, // children의 갯수를 추가
+    };
   }
 
   /**
