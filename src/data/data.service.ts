@@ -1,81 +1,74 @@
 // src/data/data.service.ts
-
 import { Injectable } from '@nestjs/common';
 import { SnowflakeService } from '../snowflake/snowflake.service';
 import { MemoryDBService } from '../memorydb/memorydb.service';
-import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { ClickstreamService } from '../clickstream/clickstream.service';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DataService {
   constructor(
     private readonly snowflakeService: SnowflakeService,
     private readonly memoryDBService: MemoryDBService,
-    private readonly clickstreamService: ClickstreamService,
-    private readonly configService: ConfigService,
   ) {}
 
   /**
-   * 데이터 조회 예시
+   * 사용자 데이터 조회 (MemoryDB)
    */
   async getUserData(userId: string): Promise<any> {
-    console.log('사용자 데이터 조회 요청, userId:', userId);
+    console.log('🔍 사용자 데이터 조회 요청, userId:', userId);
 
     // MemoryDB에서 사용자 데이터 조회
     const userData = await this.memoryDBService.getUserData(userId);
 
     if (!userData) {
-      console.error('사용자 데이터가 존재하지 않습니다.');
-      throw new Error('사용자 데이터가 존재하지 않습니다.');
+      console.warn('⚠️ 사용자 데이터가 존재하지 않습니다.');
+      return null;
     }
 
-    console.log('MemoryDB에서 가져온 사용자 데이터:', userData); // 가져온 데이터 로그 추가
+    console.log('✅ MemoryDB에서 가져온 사용자 데이터:', userData);
 
-    // children의 갯수를 세어서 반환
+    // children 개수 추가
     const numberOfChildren = userData.children ? userData.children.length : 0;
+
     return {
       ...userData,
-      numberOfChildren, // children의 갯수를 추가
+      numberOfChildren,
     };
   }
 
   /**
-   * 데이터 삽입 예시
+   * 특정 userId를 기반으로 추천 제품 조회
    */
-  async insertUserData(user: any): Promise<boolean> {
+  async getTopProductsByUserId(userId: string): Promise<any> {
+    console.log('🔍 사용자 ID 기반 추천 제품 조회 시작...');
+
+    // MemoryDB에서 userId로 사용자 정보 조회
+    const userData = await this.memoryDBService.getUserData(userId);
+    if (!userData || !userData.children) {
+      console.warn('⚠️ 사용자 데이터 또는 children 정보 없음.');
+      return [];
+    }
+
+    const numberOfChildren = userData.children.length;
+
+    // Snowflake에서 추천 제품 조회 (SQL Injection 방지를 위해 바인딩 사용)
     const query = `
-      INSERT INTO DATABASE.SCHEMA.USERS (name, email, created_at)
-      VALUES ('${user.name}', '${user.email}', CURRENT_TIMESTAMP())
+      SELECT product_x2Duid, COUNT(*) as count
+      FROM your_table_name
+      WHERE babyInfo_x2Dcount = ?
+      GROUP BY product_x2Duid
+      ORDER BY count DESC
+      LIMIT 5;
     `;
-    console.log('사용자 데이터 삽입 쿼리:', query);
 
     try {
-      await this.snowflakeService.executeQuery(query);
-      console.log('사용자 데이터 삽입 성공');
-      return true;
-    } catch (error) {
-      console.error('사용자 데이터 삽입 실패:', error);
-      throw error;
-    }
-  }
-
-  async getTopProductsByUserId(userId: string): Promise<any> {
-    // MemoryDB에서 userId로 아이들 정보 가져오기
-    const childrenData = await this.memoryDBService.getUserData(userId);
-    if (!childrenData) {
-      return []; // 아이들 정보가 없으면 빈 배열 반환
-    }
-
-    const children = childrenData.children; // 아이들 정보에서 children 배열 추출
-    const numberOfChildren = children.length;
-
-    // Clickstream 데이터에서 동일한 아이 명 수를 가진 사용자가 클릭한 상품 정보 가져오기
-    const topProducts =
-      await this.clickstreamService.getTopProductsByChildrenCount(
+      const topProducts = await this.snowflakeService.executeQuery(query, [
         numberOfChildren,
-      );
-
-    return topProducts; // 상위 5개 상품 정보 반환
+      ]);
+      console.log('✅ 상위 5개 제품 조회 결과:', topProducts);
+      return topProducts;
+    } catch (error) {
+      console.error('❌ 추천 제품 조회 실패:', error);
+      return [];
+    }
   }
 }

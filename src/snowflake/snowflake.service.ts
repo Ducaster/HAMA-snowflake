@@ -41,11 +41,12 @@ export class SnowflakeService {
     });
   }
 
-  async executeQuery(sqlText: string): Promise<any> {
-    console.log('쿼리 실행 중:', sqlText);
+  async executeQuery(sqlText: string, params?: any[]): Promise<any> {
+    console.log('쿼리 실행 중:', sqlText, '파라미터:', params);
     return new Promise((resolve, reject) => {
       this.connection.execute({
         sqlText,
+        binds: params,
         complete: (err, stmt, rows) => {
           if (err) {
             console.error('쿼리 실행 실패:', err.message);
