@@ -17,8 +17,9 @@ export class DataController {
   constructor(private readonly dataService: DataService) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get('users/:userId/top-products')
-  async getTopProducts(@Param('userId') userId: string) {
+  @Get('users/top-products')
+  async getTopProducts(@Request() req) {
+    const userId = req.user.userId; // JWT에서 userId 추출
     console.log('사용자 ID 기반 추천 제품 요청, userId:', userId);
     return await this.dataService.getTopProductsByUserId(userId);
   }
