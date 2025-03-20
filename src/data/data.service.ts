@@ -5,6 +5,7 @@ import { SnowflakeService } from '../snowflake/snowflake.service';
 import { MemoryDBService } from '../memorydb/memorydb.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ClickstreamService } from '../clickstream/clickstream.service';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DataService {
@@ -12,14 +13,18 @@ export class DataService {
     private readonly snowflakeService: SnowflakeService,
     private readonly memoryDBService: MemoryDBService,
     private readonly clickstreamService: ClickstreamService,
+    private readonly configService: ConfigService,
   ) {}
 
   /**
    * 데이터 조회 예시
    */
-  async getUserData(userId: string): Promise<any[]> {
+  async getUserData(userId: string): Promise<any> {
     console.log('사용자 데이터 조회 요청, userId:', userId);
-    const userData = await this.memoryDBService.getUserData(userId); // MemoryDB에서 사용자 데이터 조회
+
+    // MemoryDB에서 사용자 데이터 조회
+    const userData = await this.memoryDBService.getUserData(userId);
+
     if (!userData) {
       console.error('사용자 데이터가 존재하지 않습니다.');
       throw new Error('사용자 데이터가 존재하지 않습니다.');
