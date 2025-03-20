@@ -1,12 +1,21 @@
 // src/data/data.controller.ts
 
-import { Controller, Get, Post, Body, Request } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { DataService } from './data.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('data')
 export class DataController {
   constructor(private readonly dataService: DataService) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('users')
   async getUsers(@Request() req) {
     const userId = req.user.userId; // JWT의 sub 부분을 사용하여 userId 가져오기
