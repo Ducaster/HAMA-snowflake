@@ -72,14 +72,14 @@ export class DataService {
         PRODUCT_SALE_PRICE, 
         PRODUCT_SITE
       ORDER BY COUNT(PRODUCT_UID) DESC
-      LIMIT 5;
+      LIMIT 6;
     `;
 
     try {
       const topProducts = await this.snowflakeService.executeQuery(query, [
         numberOfChildren,
       ]);
-      console.log('✅ 상위 5개 제품 조회 결과:', topProducts);
+      console.log('✅ 상위 6개 제품 조회 결과:', topProducts);
       return topProducts;
     } catch (error) {
       console.error('❌ 추천 제품 조회 실패:', error);
